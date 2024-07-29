@@ -5,8 +5,8 @@ import torch.nn.functional as F
 from torchvision.transforms import Compose
 
 from .dinov2 import DINOv2
-from .util.blocks import FeatureFusionBlock, _make_scratch
-from .util.transform import Resize, NormalizeImage, PrepareForNet
+from .util.blocks import _make_scratch, FeatureFusionBlock
+from .util.transform import NormalizeImage, PrepareForNet, Resize
 
 
 def _make_fusion_block(features, use_bn, size=None):
@@ -22,9 +22,9 @@ def _make_fusion_block(features, use_bn, size=None):
 
 
 class ConvBlock(nn.Module):
+    
     def __init__(self, in_feature, out_feature):
         super().__init__()
-        
         self.conv_block = nn.Sequential(
             nn.Conv2d(in_feature, out_feature, kernel_size=3, stride=1, padding=1),
             nn.BatchNorm2d(out_feature),
@@ -36,6 +36,7 @@ class ConvBlock(nn.Module):
 
 
 class DPTHead(nn.Module):
+    
     def __init__(
         self, 
         in_channels, 
@@ -151,6 +152,7 @@ class DPTHead(nn.Module):
 
 
 class DepthAnythingV2(nn.Module):
+    
     def __init__(
         self, 
         encoder='vitl', 
@@ -160,17 +162,14 @@ class DepthAnythingV2(nn.Module):
         use_clstoken=False
     ):
         super(DepthAnythingV2, self).__init__()
-        
         self.intermediate_layer_idx = {
             'vits': [2, 5, 8, 11],
             'vitb': [2, 5, 8, 11], 
             'vitl': [4, 11, 17, 23], 
             'vitg': [9, 19, 29, 39]
         }
-        
-        self.encoder = encoder
+        self.encoder    = encoder
         self.pretrained = DINOv2(model_name=encoder)
-        
         self.depth_head = DPTHead(self.pretrained.embed_dim, features, use_bn, out_channels=out_channels, use_clstoken=use_clstoken)
     
     def forward(self, x):
@@ -186,11 +185,8 @@ class DepthAnythingV2(nn.Module):
     @torch.no_grad()
     def infer_image(self, raw_image, input_size=518):
         image, (h, w) = self.image2tensor(raw_image, input_size)
-        
         depth = self.forward(image)
-        
         depth = F.interpolate(depth[:, None], (h, w), mode="bilinear", align_corners=True)[0, 0]
-        
         return depth.cpu().numpy()
     
     def image2tensor(self, raw_image, input_size=518):        
@@ -207,15 +203,10 @@ class DepthAnythingV2(nn.Module):
             NormalizeImage(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
             PrepareForNet(),
         ])
-        
-        h, w = raw_image.shape[:2]
-        
-        image = cv2.cvtColor(raw_image, cv2.COLOR_BGR2RGB) / 255.0
-        
-        image = transform({'image': image})['image']
-        image = torch.from_numpy(image).unsqueeze(0)
-        
+        h, w   = raw_image.shape[:2]
+        image  = cv2.cvtColor(raw_image, cv2.COLOR_BGR2RGB) / 255.0
+        image  = transform({'image': image})['image']
+        image  = torch.from_numpy(image).unsqueeze(0)
         DEVICE = 'cuda' if torch.cuda.is_available() else 'mps' if torch.backends.mps.is_available() else 'cpu'
-        image = image.to(DEVICE)
-        
+        image  = image.to(DEVICE)
         return image, (h, w)
