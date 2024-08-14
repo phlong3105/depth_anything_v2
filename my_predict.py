@@ -53,7 +53,7 @@ def predict(args: argparse.Namespace):
     
     # Benchmark
     if benchmark:
-        flops, params, avg_time = mon.calculate_efficiency_score(
+        flops, params, avg_time = mon.compute_efficiency_score(
             model      = copy.deepcopy(depth_anything),
             image_size = imgsz,
             channels   = 3,
