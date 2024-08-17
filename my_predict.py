@@ -74,12 +74,8 @@ def predict(args: argparse.Namespace):
         denormalize = True,
         verbose     = False,
     )
-    save_dir       = save_dir / data_name
-    gray_save_dir  = save_dir / "gray"
-    color_save_dir = save_dir / "color"
+    # save_dir = save_dir / data_name
     save_dir.mkdir(parents=True, exist_ok=True)
-    gray_save_dir.mkdir(parents=True, exist_ok=True)
-    color_save_dir.mkdir(parents=True, exist_ok=True)
     
     # Predicting
     cmap  = matplotlib.colormaps.get_cmap("Spectral_r")
@@ -93,8 +89,7 @@ def predict(args: argparse.Namespace):
             ):
                 image      = datapoint.get("image")
                 meta       = datapoint.get("meta")
-                image_path = meta["path"]
-                # raw_image  = cv2.imread(str(image_path))
+                image_path = mon.Path(meta["path"])
                 raw_image  = image
                 timer.tick()
                 depth      = depth_anything.infer_image(raw_image, imgsz)
@@ -102,11 +97,16 @@ def predict(args: argparse.Namespace):
                 depth      = depth.astype(np.uint8)
                 timer.tock()
                 
-                gray    = {
+                relative_path  = image_path.relative_path_from_part(data_name)
+                gray_save_dir  = save_dir / relative_path.parent / "gray"
+                color_save_dir = save_dir / relative_path.parent / "color"
+                gray_save_dir.mkdir(parents=True,  exist_ok=True)
+                color_save_dir.mkdir(parents=True, exist_ok=True)
+                gray = {
                     "file": gray_save_dir / image_path.name,
                     "data": np.repeat(depth[..., np.newaxis], 3, axis=-1),
                 }
-                color   = {
+                color = {
                     "file": color_save_dir / image_path.name,
                     "data": (cmap(depth)[:, :, :3] * 255)[:, :, ::-1].astype(np.uint8),
                 }
