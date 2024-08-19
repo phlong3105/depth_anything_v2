@@ -74,7 +74,7 @@ def predict(args: argparse.Namespace):
         denormalize = True,
         verbose     = False,
     )
-    # save_dir = save_dir / data_name
+    # save_dir       = save_dir / data_name
     save_dir.mkdir(parents=True, exist_ok=True)
     
     # Predicting
@@ -90,6 +90,7 @@ def predict(args: argparse.Namespace):
                 image      = datapoint.get("image")
                 meta       = datapoint.get("meta")
                 image_path = mon.Path(meta["path"])
+                # raw_image  = cv2.imread(str(image_path))
                 raw_image  = image
                 timer.tick()
                 depth      = depth_anything.infer_image(raw_image, imgsz)
@@ -97,16 +98,17 @@ def predict(args: argparse.Namespace):
                 depth      = depth.astype(np.uint8)
                 timer.tock()
                 
-                relative_path  = image_path.relative_path_from_part(data_name)
-                gray_save_dir  = save_dir / relative_path.parent / "gray"
-                color_save_dir = save_dir / relative_path.parent / "color"
-                gray_save_dir.mkdir(parents=True,  exist_ok=True)
-                color_save_dir.mkdir(parents=True, exist_ok=True)
-                gray = {
+                relative_path  = image_path.relative_path(data_name)
+                parent_dir     = relative_path.parent.parent
+                gray_save_dir  = save_dir / relative_path.parents[1] / f"{parent_dir.name}_dav2_{encoder}_g"
+                color_save_dir = save_dir / relative_path.parents[1] / f"{parent_dir.name}_dav2_{encoder}_c"
+                # gray_save_dir  = save_dir / parent_dir.parent / f"{parent_dir.name}_dav2_{encoder}_g" / image_path.relative_path(relative_path.parent.name)
+                # color_save_dir = save_dir / parent_dir.parent / f"{parent_dir.name}_dav2_{encoder}_c" / image_path.relative_path(relative_path.parent.name)
+                gray    = {
                     "file": gray_save_dir / image_path.name,
                     "data": np.repeat(depth[..., np.newaxis], 3, axis=-1),
                 }
-                color = {
+                color   = {
                     "file": color_save_dir / image_path.name,
                     "data": (cmap(depth)[:, :, :3] * 255)[:, :, ::-1].astype(np.uint8),
                 }
@@ -121,6 +123,7 @@ def predict(args: argparse.Namespace):
                 for result in results:
                     output_path = result["file"]
                     output      = result["data"]
+                    output_path.parent.mkdir(parents=True, exist_ok=True)
                     if not pred_only:
                         split_region    = np.ones((raw_image.shape[0], 50, 3), dtype=np.uint8) * 255
                         combined_result = cv2.hconcat([raw_image, split_region, output])
