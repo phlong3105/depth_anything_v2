@@ -91,12 +91,12 @@ def predict(args: argparse.Namespace):
                 image      = datapoint.get("image")
                 meta       = datapoint.get("meta")
                 image_path = mon.Path(meta["path"])
-                # raw_image  = cv2.imread(str(image_path))
-                raw_image  = image
+                
+                # Infer
                 timer.tick()
-                depth      = depth_anything.infer_image(raw_image, imgsz)
-                depth      = (depth - depth.min()) / (depth.max() - depth.min()) * 255.0
-                depth      = depth.astype(np.uint8)
+                depth = depth_anything.infer_image(image, imgsz)
+                depth = (depth - depth.min()) / (depth.max() - depth.min()) * 255.0
+                depth = depth.astype(np.uint8)
                 timer.tock()
                 
                 # Save
