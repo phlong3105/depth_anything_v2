@@ -31,6 +31,8 @@ def predict(args: argparse.Namespace):
     imgsz        = args.imgsz[0]
     resize       = args.resize
     benchmark    = args.benchmark
+    save_image   = args.save_image
+    save_debug   = args.save_debug
     use_fullpath = args.use_fullpath
     encoder      = args.encoder
     features     = args.features
@@ -98,41 +100,42 @@ def predict(args: argparse.Namespace):
                 timer.tock()
                 
                 # Save
-                if use_fullpath:
-                    rel_path       = image_path.relative_path(data_name)
-                    parent_dir     = rel_path.parent.parent
-                    gray_save_dir  = save_dir / rel_path.parents[1] / f"{parent_dir.name}_dav2_{encoder}_g"
-                    color_save_dir = save_dir / rel_path.parents[1] / f"{parent_dir.name}_dav2_{encoder}_c"
-                    # gray_save_dir  = save_dir / parent_dir.parent / f"{parent_dir.name}_dav2_{encoder}_g" / image_path.relative_path(relative_path.parent.name)
-                    # color_save_dir = save_dir / parent_dir.parent / f"{parent_dir.name}_dav2_{encoder}_c" / image_path.relative_path(relative_path.parent.name)
-                else:
-                    gray_save_dir  = save_dir / data_name / "gray"
-                    color_save_dir = save_dir / data_name / "color"
-                gray    = {
-                    "file": gray_save_dir / image_path.name,
-                    "data": np.repeat(depth[..., np.newaxis], 3, axis=-1),
-                }
-                color   = {
-                    "file": color_save_dir / image_path.name,
-                    "data": (cmap(depth)[:, :, :3] * 255)[:, :, ::-1].astype(np.uint8),
-                }
-                results = []
-                if format in [2, "all"]:
-                    results = [gray, color]
-                elif format in [0, "gray", "grayscale"]:
-                    results = [gray]
-                elif format in [1, "color"]:
-                    results = [color]
-                
-                for result in results:
-                    output_path = result["file"]
-                    output      = result["data"]
-                    output_path.parent.mkdir(parents=True, exist_ok=True)
-                    if not pred_only:
-                        split_region    = np.ones((raw_image.shape[0], 50, 3), dtype=np.uint8) * 255
-                        combined_result = cv2.hconcat([raw_image, split_region, output])
-                        output          = combined_result
-                    cv2.imwrite(str(output_path), output)
+                if save_image:
+                    if use_fullpath:
+                        rel_path       = image_path.relative_path(data_name)
+                        parent_dir     = rel_path.parent.parent
+                        gray_save_dir  = save_dir / rel_path.parents[1] / f"{parent_dir.name}_dav2_{encoder}_g"
+                        color_save_dir = save_dir / rel_path.parents[1] / f"{parent_dir.name}_dav2_{encoder}_c"
+                        # gray_save_dir  = save_dir / parent_dir.parent / f"{parent_dir.name}_dav2_{encoder}_g" / image_path.relative_path(relative_path.parent.name)
+                        # color_save_dir = save_dir / parent_dir.parent / f"{parent_dir.name}_dav2_{encoder}_c" / image_path.relative_path(relative_path.parent.name)
+                    else:
+                        gray_save_dir  = save_dir / data_name / "gray"
+                        color_save_dir = save_dir / data_name / "color"
+                    gray    = {
+                        "file": gray_save_dir / image_path.name,
+                        "data": np.repeat(depth[..., np.newaxis], 3, axis=-1),
+                    }
+                    color   = {
+                        "file": color_save_dir / image_path.name,
+                        "data": (cmap(depth)[:, :, :3] * 255)[:, :, ::-1].astype(np.uint8),
+                    }
+                    results = []
+                    if format in [2, "all"]:
+                        results = [gray, color]
+                    elif format in [0, "gray", "grayscale"]:
+                        results = [gray]
+                    elif format in [1, "color"]:
+                        results = [color]
+                    
+                    for result in results:
+                        output_path = result["file"]
+                        output      = result["data"]
+                        output_path.parent.mkdir(parents=True, exist_ok=True)
+                        if not pred_only:
+                            split_region    = np.ones((raw_image.shape[0], 50, 3), dtype=np.uint8) * 255
+                            combined_result = cv2.hconcat([raw_image, split_region, output])
+                            output          = combined_result
+                        cv2.imwrite(str(output_path), output)
         
         avg_time = float(timer.avg_time)
         console.log(f"Average time: {avg_time}")
