@@ -31,6 +31,7 @@ def predict(args: argparse.Namespace):
     imgsz        = args.imgsz[0]
     resize       = args.resize
     benchmark    = args.benchmark
+    use_fullpath = args.use_fullpath
     encoder      = args.encoder
     features     = args.features
     out_channels = args.out_channels
@@ -74,8 +75,6 @@ def predict(args: argparse.Namespace):
         denormalize = True,
         verbose     = False,
     )
-    # save_dir       = save_dir / data_name
-    save_dir.mkdir(parents=True, exist_ok=True)
     
     # Predicting
     cmap  = matplotlib.colormaps.get_cmap("Spectral_r")
@@ -98,12 +97,17 @@ def predict(args: argparse.Namespace):
                 depth      = depth.astype(np.uint8)
                 timer.tock()
                 
-                relative_path  = image_path.relative_path(data_name)
-                parent_dir     = relative_path.parent.parent
-                gray_save_dir  = save_dir / relative_path.parents[1] / f"{parent_dir.name}_dav2_{encoder}_g"
-                color_save_dir = save_dir / relative_path.parents[1] / f"{parent_dir.name}_dav2_{encoder}_c"
-                # gray_save_dir  = save_dir / parent_dir.parent / f"{parent_dir.name}_dav2_{encoder}_g" / image_path.relative_path(relative_path.parent.name)
-                # color_save_dir = save_dir / parent_dir.parent / f"{parent_dir.name}_dav2_{encoder}_c" / image_path.relative_path(relative_path.parent.name)
+                # Save
+                if use_fullpath:
+                    rel_path       = image_path.relative_path(data_name)
+                    parent_dir     = rel_path.parent.parent
+                    gray_save_dir  = save_dir / rel_path.parents[1] / f"{parent_dir.name}_dav2_{encoder}_g"
+                    color_save_dir = save_dir / rel_path.parents[1] / f"{parent_dir.name}_dav2_{encoder}_c"
+                    # gray_save_dir  = save_dir / parent_dir.parent / f"{parent_dir.name}_dav2_{encoder}_g" / image_path.relative_path(relative_path.parent.name)
+                    # color_save_dir = save_dir / parent_dir.parent / f"{parent_dir.name}_dav2_{encoder}_c" / image_path.relative_path(relative_path.parent.name)
+                else:
+                    gray_save_dir  = save_dir / data_name / "gray"
+                    color_save_dir = save_dir / data_name / "color"
                 gray    = {
                     "file": gray_save_dir / image_path.name,
                     "data": np.repeat(depth[..., np.newaxis], 3, axis=-1),
@@ -129,6 +133,7 @@ def predict(args: argparse.Namespace):
                         combined_result = cv2.hconcat([raw_image, split_region, output])
                         output          = combined_result
                     cv2.imwrite(str(output_path), output)
+        
         avg_time = float(timer.avg_time)
         console.log(f"Average time: {avg_time}")
 
