@@ -132,8 +132,8 @@ def predict(args: argparse.Namespace):
                         output      = result["data"]
                         output_path.parent.mkdir(parents=True, exist_ok=True)
                         if not pred_only:
-                            split_region    = np.ones((raw_image.shape[0], 50, 3), dtype=np.uint8) * 255
-                            combined_result = cv2.hconcat([raw_image, split_region, output])
+                            split_region    = np.ones((image.shape[0], 50, 3), dtype=np.uint8) * 255
+                            combined_result = cv2.hconcat([image, split_region, output])
                             output          = combined_result
                         cv2.imwrite(str(output_path), output)
         
