@@ -113,11 +113,11 @@ def predict(args: argparse.Namespace):
                         gray_save_dir  = save_dir / data_name / "gray"
                         color_save_dir = save_dir / data_name / "color"
                     gray    = {
-                        "file": gray_save_dir / image_path.name,
+                        "file": gray_save_dir / f"{image_path.stem}.jpg",
                         "data": np.repeat(depth[..., np.newaxis], 3, axis=-1),
                     }
                     color   = {
-                        "file": color_save_dir / image_path.name,
+                        "file": color_save_dir / f"{image_path.stem}.jpg",
                         "data": (cmap(depth)[:, :, :3] * 255)[:, :, ::-1].astype(np.uint8),
                     }
                     results = []
