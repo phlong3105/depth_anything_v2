@@ -27,7 +27,7 @@ from typing import Any, Literal
 from depth_anything_v2 import dpt
 from mon import core, nn
 from mon.globals import MODELS, Scheme, ZOO_DIR
-from mon.vision.depth import base
+from mon.vision.dtype.depth import base
 
 console       = core.console
 error_console = core.error_console
