@@ -14,5 +14,5 @@ is not a smart idea.
 
 from __future__ import annotations
 
-import mon.vision.depth.depth_anything_v2.depth_anything_v2
-from mon.vision.depth.depth_anything_v2.depth_anything_v2 import *
+import mon.vision.dtype.depth.depth_anything_v2.depth_anything_v2
+from mon.vision.dtype.depth.depth_anything_v2.depth_anything_v2 import *
