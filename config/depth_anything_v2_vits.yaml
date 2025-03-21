@@ -27,7 +27,7 @@ use_fullname: False
 exist_ok    : False
 verbose     : True
 
-# Model Specific
+# Misc
 encoder     : "vits"
 features    : 64
 out_channels: [48, 96, 192, 384]

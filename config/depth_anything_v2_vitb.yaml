@@ -27,7 +27,7 @@ use_fullname: False
 exist_ok    : False
 verbose     : True
 
-# Model Specific
+# Misc
 encoder     : "vitb"
 features    : 128
 out_channels: [96, 192, 384, 768]

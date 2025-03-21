@@ -27,7 +27,7 @@ use_fullname: False
 exist_ok    : False
 verbose     : True
 
-# Model Specific
+# Misc
 encoder     : "vitg"
 features    : 384
 out_channels: [1536, 1536, 1536, 1536]
