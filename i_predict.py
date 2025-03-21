@@ -4,7 +4,7 @@
 from __future__ import annotations
 
 import argparse
-import copy
+from typing import Sequence
 
 import cv2
 import matplotlib
@@ -23,51 +23,41 @@ current_dir  = current_file.parents[0]
 # region Predict
 
 def predict(args: argparse.Namespace):
-    # General config
+    # Parse args
+    hostname     = args.hostname
+    root         = args.root
     data         = args.data
+    fullname     = args.fullname
     save_dir     = args.save_dir
     weights      = args.weights
-    device       = mon.set_device(args.device)
+    device       = args.device
+    seed         = args.seed
     imgsz        = args.imgsz
-    imgsz        = imgsz[0] if isinstance(imgsz, list | tuple) else imgsz
+    imgsz        = imgsz[0] if isinstance(imgsz, Sequence) else imgsz
     resize       = args.resize
+    epochs       = args.epochs
+    steps        = args.steps
     benchmark    = args.benchmark
     save_image   = args.save_image
     save_debug   = args.save_debug
     use_fullpath = args.use_fullpath
-    encoder      = args.encoder
-    features     = args.features
-    out_channels = args.out_channels
-    pred_only    = args.pred_only
-    format       = args.format
+    verbose      = args.verbose
     
-    # Model
-    '''
-    model_configs = {
-        "vits": {"encoder": "vits", "features": 64,  "out_channels": [48,   96,   192,  384 ]},
-        "vitb": {"encoder": "vitb", "features": 128, "out_channels": [96,   192,  384,  768 ]},
-        "vitl": {"encoder": "vitl", "features": 256, "out_channels": [256,  512,  1024, 1024]},
-        "vitg": {"encoder": "vitg", "features": 384, "out_channels": [1536, 1536, 1536, 1536]}
-    }
-    depth_anything = DepthAnythingV2(**model_configs[args.encoder])
-    '''
-    depth_anything = DepthAnythingV2(encoder=encoder, features=features, out_channels=out_channels)
-    depth_anything.load_state_dict(torch.load(str(weights), map_location="cpu", weights_only=True))
-    depth_anything = depth_anything.to(device).eval()
+    encoder      = args.network.encoder
+    features     = args.network.features
+    out_channels = args.network.out_channels
+    pred_only    = args.network.pred_only
+    format       = args.network.format
     
-    # Benchmark
-    if benchmark:
-        flops, params, avg_time = mon.compute_efficiency_score(
-            model      = copy.deepcopy(depth_anything),
-            image_size = imgsz,
-            channels   = 3,
-            runs       = 100,
-            use_cuda   = True,
-            verbose    = False,
-        )
-        console.log(f"FLOPs : {flops:.4f}")
-        console.log(f"Params: {params:.4f}")
-        console.log(f"Time   = {avg_time:.4f}")
+    # Start
+    console.rule(f"[bold red] {fullname}")
+    console.log(f"Machine: {hostname}")
+    
+    # Device
+    device = mon.set_device(device)
+    
+    # Seed
+    mon.set_random_seed(seed)
     
     # Data I/O
     console.log(f"[bold red]{data}")
@@ -79,9 +69,29 @@ def predict(args: argparse.Namespace):
         verbose     = False,
     )
     
+    # Model
+    '''
+    model_configs = {
+        "vits": {"encoder": "vits", "features": 64,  "out_channels": [48,   96,   192,  384 ]},
+        "vitb": {"encoder": "vitb", "features": 128, "out_channels": [96,   192,  384,  768 ]},
+        "vitl": {"encoder": "vitl", "features": 256, "out_channels": [256,  512,  1024, 1024]},
+        "vitg": {"encoder": "vitg", "features": 384, "out_channels": [1536, 1536, 1536, 1536]}
+    }
+    depth_anything = DepthAnythingV2(**model_configs[args.encoder])
+    '''
+    depth_anything = DepthAnythingV2(encoder=encoder, features=features, out_channels=out_channels).to(device)
+    depth_anything.load_state_dict(torch.load(str(weights), map_location=device, weights_only=True))
+    depth_anything = depth_anything.eval()
+    
+    # Benchmark
+    if benchmark:
+        flops, params = mon.compute_efficiency_score(model=depth_anything, image_size=imgsz)
+        console.log(f"FLOPs : {flops:.4f}")
+        console.log(f"Params: {params:.4f}")
+    
     # Predicting
-    cmap  = matplotlib.colormaps.get_cmap("Spectral_r")
     timer = mon.Timer()
+    cmap  = matplotlib.colormaps.get_cmap("Spectral_r")
     with torch.no_grad():
         with mon.get_progress_bar() as pbar:
             for i, datapoint in pbar.track(
@@ -89,9 +99,9 @@ def predict(args: argparse.Namespace):
                 total       = len(data_loader),
                 description = f"[bright_yellow] Predicting"
             ):
-                image      = datapoint.get("image")
                 meta       = datapoint.get("meta")
                 image_path = mon.Path(meta["path"])
+                image      = datapoint.get("image")
                 
                 # Infer
                 timer.tick()
@@ -137,9 +147,9 @@ def predict(args: argparse.Namespace):
                             combined_result = cv2.hconcat([image, split_region, output])
                             output          = combined_result
                         cv2.imwrite(str(output_path), output)
-        
-        avg_time = float(timer.avg_time)
-        console.log(f"Average time: {avg_time}")
+    
+    # Finish
+    console.log(f"Average time: {timer.avg_time}")
 
 # endregion
 

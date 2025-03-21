@@ -26,7 +26,7 @@ from typing import Any, Literal
 
 from depth_anything_v2 import dpt
 from mon import core, nn
-from mon.globals import MODELS, Scheme, ZOO_DIR
+from mon.globals import MODELS, Scheme, Task, ZOO_DIR
 from mon.vision.dtype.depth import base
 
 console       = core.console
@@ -42,9 +42,10 @@ class DepthAnythingV2(nn.ExtraModel, base.DepthEstimationModel, ABC):
     defined in :obj:`mon_extra.vision.depth.depth_anything_v2`.
     """
     
-    model_dir: core.Path    = current_dir
     arch     : str          = "depth_anything_v2"
+    tasks    : list[Task]   = [Task.DEPTH]
     schemes  : list[Scheme] = [Scheme.INFERENCE]
+    model_dir: core.Path    = current_dir
     zoo      : dict         = {}
     
     def init_weights(self, m: nn.Module):
@@ -62,29 +63,20 @@ class DepthAnythingV2(nn.ExtraModel, base.DepthEstimationModel, ABC):
 @MODELS.register(name="depth_anything_v2_vits", arch="depth_anything_v2")
 class DepthAnythingV2_ViTS(DepthAnythingV2):
     
-    zoo: dict = {
+    name: str = "depth_anything_v2_vits"
+    zoo : dict = {
         "da_2k": {
             "url"        : None,
-            "path"       : ZOO_DIR / "vision/depth/depth_anything_v2/depth_anything_v2_vits/da_2k/depth_anything_v2_vits_da_2k.pth",
+            "path"       : ZOO_DIR / "vision/dtype/depth/depth_anything_v2/depth_anything_v2_vits/da_2k/depth_anything_v2_vits_da_2k.pth",
             "num_classes": None,
         },
     }
     
-    def __init__(
-        self,
-        name       : str = "depth_anything_v2_vits",
-        in_channels: int = 3,
-        weights    : Any = "da_2k",
-        *args, **kwargs
-    ):
-        super().__init__(
-            name        = name,
-            in_channels = in_channels,
-            weights     = weights,
-            *args, **kwargs
-        )
-        self.in_channels = in_channels or self.in_channels
-        self.model       = dpt.DepthAnythingV2(
+    def __init__(self, weights: Any = "da_2k", *args, **kwargs):
+        super().__init__(weights=weights, *args, **kwargs)
+        
+        # Network
+        self.model = dpt.DepthAnythingV2(
             encoder      = "vits",
             features     = 64,
             out_channels = [48, 96, 192, 384],
@@ -100,29 +92,20 @@ class DepthAnythingV2_ViTS(DepthAnythingV2):
 @MODELS.register(name="depth_anything_v2_vitb", arch="depth_anything_v2")
 class DepthAnythingV2_ViTB(DepthAnythingV2):
     
-    zoo: dict = {
+    name: str = "depth_anything_v2_vitb"
+    zoo : dict = {
         "da_2k": {
             "url"        : None,
-            "path"       : ZOO_DIR / "vision/depth/depth_anything_v2/depth_anything_v2_vitb/da_2k/depth_anything_v2_vitb_da_2k.pth",
+            "path"       : ZOO_DIR / "vision/dtype/depth/depth_anything_v2/depth_anything_v2_vitb/da_2k/depth_anything_v2_vitb_da_2k.pth",
             "num_classes": None,
         },
     }
 
-    def __init__(
-        self,
-        name       : str = "depth_anything_v2_vits",
-        in_channels: int = 3,
-        weights    : Any = "da_2k",
-        *args, **kwargs
-    ):
-        super().__init__(
-            name        = name,
-            in_channels = in_channels,
-            weights     = weights,
-            *args, **kwargs
-        )
-        self.in_channels = in_channels or self.in_channels
-        self.model       = dpt.DepthAnythingV2(
+    def __init__(self, weights: Any = "da_2k", *args, **kwargs):
+        super().__init__(weights=weights, *args, **kwargs)
+        
+        # Network
+        self.model = dpt.DepthAnythingV2(
             encoder      = "vitb",
             features     = 128,
             out_channels = [96, 192, 384, 768],
@@ -138,29 +121,20 @@ class DepthAnythingV2_ViTB(DepthAnythingV2):
 @MODELS.register(name="depth_anything_v2_vitl", arch="depth_anything_v2")
 class DepthAnythingV2_ViTL(DepthAnythingV2):
     
-    zoo: dict = {
+    name: str = "depth_anything_v2_vitl"
+    zoo : dict = {
         "da_2k": {
             "url"        : None,
-            "path"       : ZOO_DIR / "vision/depth/depth_anything_v2/depth_anything_v2_vitl/da_2k/depth_anything_v2_vitl_da_2k.pth",
+            "path"       : ZOO_DIR / "vision/dtype/depth/depth_anything_v2/depth_anything_v2_vitl/da_2k/depth_anything_v2_vitl_da_2k.pth",
             "num_classes": None,
         },
     }
 
-    def __init__(
-        self,
-        name       : str = "depth_anything_v2_vits",
-        in_channels: int = 3,
-        weights    : Any = "da_2k",
-        *args, **kwargs
-    ):
-        super().__init__(
-            name        = name,
-            in_channels = in_channels,
-            weights     = weights,
-            *args, **kwargs
-        )
-        self.in_channels = in_channels or self.in_channels
-        self.model       = dpt.DepthAnythingV2(
+    def __init__(self, weights: Any = "da_2k", *args, **kwargs):
+        super().__init__(weights=weights, *args, **kwargs)
+        
+        # Network
+        self.model = dpt.DepthAnythingV2(
             encoder      = "vitl",
             features     = 256,
             out_channels = [256, 512, 1024, 1024],
