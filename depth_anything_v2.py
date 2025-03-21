@@ -52,8 +52,7 @@ class DepthAnythingV2(nn.ExtraModel, base.DepthEstimationModel, ABC):
         pass
     
     def forward(self, datapoint: dict, *args, **kwargs) -> dict:
-        self.assert_datapoint(datapoint)
-        x = datapoint.get("image")
+        x = datapoint["image"]
         y = self.model(x)
         y = (y - y.min()) / (y.max() - y.min())  # Normalize the depth map in the range [0, 1].
         y = y.unsqueeze(1)
