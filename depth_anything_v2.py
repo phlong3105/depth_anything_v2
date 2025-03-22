@@ -8,7 +8,7 @@ simple interface for loading pre-trained models and performing inference.
 
 Notice:
 This is the first example of using a third-party package in the `mon` package.
-Why? Because reimplementing all of :obj:`depth_anything_v2` is a lot of work and
+Why? Because reimplementing all of `depth_anything_v2` is a lot of work and
 is not a smart idea.
 """
 
@@ -26,7 +26,7 @@ from typing import Any, Literal
 
 from depth_anything_v2 import dpt
 from mon import core, nn
-from mon.globals import MODELS, Scheme, Task, ZOO_DIR
+from mon.globals import MODELS, LType, Task, ZOO_DIR
 from mon.vision.dtype.depth import base
 
 console       = core.console
@@ -38,13 +38,13 @@ current_dir   = current_file.parents[0]
 # region Model
 
 class DepthAnythingV2(nn.ExtraModel, base.DepthEstimationModel, ABC):
-    """This class implements a wrapper for :obj:`DepthAnythingV2` models
-    defined in :obj:`mon_extra.vision.depth.depth_anything_v2`.
+    """This class implements a wrapper for `DepthAnythingV2` models
+    defined in `mon_extra.vision.depth.depth_anything_v2`.
     """
     
     arch     : str          = "depth_anything_v2"
     tasks    : list[Task]   = [Task.DEPTH]
-    schemes  : list[Scheme] = [Scheme.INFERENCE]
+    ltypes   : list[LType]  = [LType.INFERENCE]
     model_dir: core.Path    = current_dir
     zoo      : dict         = {}
     

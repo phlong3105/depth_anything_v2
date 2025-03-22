@@ -8,7 +8,7 @@ simple interface for loading pre-trained models and performing inference.
 
 Notice:
 This is the first example of using a third-party package in the `mon` package.
-Why? Because reimplementing all of :obj:`depth_anything_v2` is a lot of work and
+Why? Because reimplementing all of `depth_anything_v2` is a lot of work and
 is not a smart idea.
 """
 
