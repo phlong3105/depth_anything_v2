@@ -9,8 +9,7 @@
 from typing import Union
 
 import torch
-from torch import Tensor
-from torch import nn
+from torch import nn, Tensor
 
 
 class LayerScale(nn.Module):

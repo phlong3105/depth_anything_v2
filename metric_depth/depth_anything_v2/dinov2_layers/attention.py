@@ -10,9 +10,7 @@
 
 import logging
 
-from torch import Tensor
-from torch import nn
-
+from torch import nn, Tensor
 
 logger = logging.getLogger("dinov2")
 
@@ -79,5 +77,3 @@ class MemEffAttention(Attention):
         x = self.proj(x)
         x = self.proj_drop(x)
         return x
-
-        

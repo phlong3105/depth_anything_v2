@@ -1,9 +1,8 @@
 import cv2
 import torch
+from dataset.transform import NormalizeImage, PrepareForNet, Resize
 from torch.utils.data import Dataset
 from torchvision.transforms import Compose
-
-from dataset.transform import Resize, NormalizeImage, PrepareForNet
 
 
 class KITTI(Dataset):

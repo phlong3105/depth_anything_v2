@@ -3,15 +3,15 @@ import logging
 import os
 import pprint
 import random
-
 import warnings
+
 import numpy as np
 import torch
 import torch.backends.cudnn as cudnn
 import torch.distributed as dist
-from torch.utils.data import DataLoader
-from torch.optim import AdamW
 import torch.nn.functional as F
+from torch.optim import AdamW
+from torch.utils.data import DataLoader
 from torch.utils.tensorboard import SummaryWriter
 
 from dataset.hypersim import Hypersim
@@ -22,7 +22,6 @@ from util.dist_helper import setup_distributed
 from util.loss import SiLogLoss
 from util.metric import eval_depth
 from util.utils import init_log
-
 
 parser = argparse.ArgumentParser(description='Depth Anything V2 for Metric Depth Estimation')
 

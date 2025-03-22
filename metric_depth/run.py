@@ -1,13 +1,13 @@
 import argparse
-import cv2
 import glob
+import os
+
+import cv2
 import matplotlib
 import numpy as np
-import os
 import torch
 
 from depth_anything_v2.dpt import DepthAnythingV2
-
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Depth Anything V2 Metric Depth Estimation')

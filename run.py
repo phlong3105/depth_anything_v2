@@ -9,7 +9,6 @@ import torch
 
 from depth_anything_v2.dpt import DepthAnythingV2
 
-
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Depth Anything V2")
     parser.add_argument("--img-path",   type=str)

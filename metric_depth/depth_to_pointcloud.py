@@ -20,13 +20,14 @@ Arguments:
 """
 
 import argparse
-import cv2
 import glob
+import os
+
+import cv2
 import numpy as np
 import open3d as o3d
-import os
-from PIL import Image
 import torch
+from PIL import Image
 
 from depth_anything_v2.dpt import DepthAnythingV2
 

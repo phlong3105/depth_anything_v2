@@ -1,11 +1,12 @@
 import glob
+import tempfile
+
 import gradio as gr
 import matplotlib
 import numpy as np
-from PIL import Image
 import torch
-import tempfile
 from gradio_imageslider import ImageSlider
+from PIL import Image
 
 from depth_anything_v2.dpt import DepthAnythingV2
 

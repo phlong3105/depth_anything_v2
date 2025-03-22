@@ -2,10 +2,9 @@ import cv2
 import h5py
 import numpy as np
 import torch
+from dataset.transform import Crop, NormalizeImage, PrepareForNet, Resize
 from torch.utils.data import Dataset
 from torchvision.transforms import Compose
-
-from dataset.transform import Resize, NormalizeImage, PrepareForNet, Crop
 
 
 def hypersim_distance_to_depth(npyDistance):
