@@ -1,16 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""DepthAnythingV2.
-
-This module implements a wrapper for DepthAnythingV2 models. It provides a
-simple interface for loading pre-trained models and performing inference.
-
-Notice:
-This is the first example of using a third-party package in the `mon` package.
-Why? Because reimplementing all of `depth_anything_v2` is a lot of work and
-is not a smart idea.
-"""
+"""Wraps DepthAnythingV2 models for easy loading and inference."""
 
 from __future__ import annotations
 
@@ -153,7 +144,7 @@ def build_depth_anything_v2(
     *args, **kwargs
 ) -> DepthAnythingV2:
     if encoder not in ["vits", "vitb", "vitl", "vitg"]:
-        raise ValueError(f"`encoder` must be one of ['vits', 'vitb', 'vitl', 'vitg'], but got {encoder}.")
+        raise ValueError(f"`encoder` must be one of ['vits', 'vitb', 'vitl', 'vitg'], got {encoder}.")
     if encoder == "vits":
         return DepthAnythingV2_ViTS(in_channels=in_channels, weights=weights, *args, **kwargs)
     elif encoder == "vitb":
